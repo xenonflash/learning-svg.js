@@ -17,12 +17,26 @@
   <div id="svg"></div>
 <script src="./node_modules/svg.js/dist/svg.min.js"></script>
 <script>
-  var svg = SVG('svg').size(500, 500);
-  var nested = svg.nested();
-  var rect = svg.rect(100, 100).move(30, 50).fill('#60f');
-  var rect2 = nested.rect(50, 50).fill('green');
-  var count = 0;
-  console.dir(rect);
+  (function() {
+      // init root context
+      var svg = SVG('svg').size(500, 500);
+      // create a round cornet reactangle
+      var rect = svg.rect(100, 100)
+                    .move(30, 50)
+                    .fill('#60f')
+                    .radius(20)
+                    .click(() => {rect.animate(1000).size(200, 10)});
+      // create a circle                
+      var circle = svg.circle(60)
+                      .fill('lightgreen')
+                      .move(150, 70)
+                      .click(() => {circle.animate(1000).radius(200)});
+      // create a line
+      var line = svg.line(150, 0, 300, 150)
+                    .stroke({width: 3, color: '#f60'})
+                    .click(() => {line.animate(1000).plot(200,0,300,150)});
+    }
+  )();
 </script>
 </body>
 </html>
