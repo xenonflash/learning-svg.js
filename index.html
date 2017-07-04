@@ -18,7 +18,11 @@
 <script src="./node_modules/svg.js/dist/svg.min.js"></script>
 <script>
   var svg = SVG('svg').size(500, 500);
-  svg.rect(100, 100).move(30, 50).fill('#f06');
+  var nested = svg.nested();
+  var rect = svg.rect(100, 100).move(30, 50).fill('#60f');
+  var rect2 = nested.rect(50, 50).fill('green');
+  var count = 0;
+  console.dir(rect);
 </script>
 </body>
 </html>
