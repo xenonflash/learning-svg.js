@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    #svg{
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <h3>hello svg</h3>
+  <hr>
+  <div id="svg"></div>
+<script src="./node_modules/svg.js/dist/svg.min.js"></script>
+<script>
+  var svg = SVG('svg').size(500, 500);
+  svg.rect(100, 100).move(30, 50).fill('#f06');
+</script>
+</body>
+</html>
