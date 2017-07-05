@@ -74,7 +74,21 @@
       use.move(0, 100)
       gradientRect.animate(1000, '<>').size(100, 50).loop(true, true)
 
-      
+
+      // marker
+      var axisX = svg.polyline('50,0 60,40 100,50 60,60 50,100 40,60 0,50 40,40')
+                     .stroke({width: 2, color: '#888'})
+                     .move(20, 180)
+                     .fill('none')
+                     .marker('start', 10, 10, add => {
+                       add.rect(1, 5).dx(5)
+                     })
+                     .marker('mid', 10, 10, add => {
+                       add.circle(10, 10).fill('red')
+                     })
+                     .marker('end', 10, 10, add => {
+                       add.circle(10, 10).fill('green')
+                     })
     }
   )();
 </script>
