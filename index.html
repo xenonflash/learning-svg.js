@@ -13,16 +13,85 @@
 </head>
 <body>
   <h3>hello svg</h3>
+  <a href='./flowchart.html'>流程图</a>
   <hr>
   <div id="svg"></div>
 <script src="./node_modules/svg.js/dist/svg.min.js"></script>
 <script>
-  var svg = SVG('svg').size(500, 500);
-  var nested = svg.nested();
-  var rect = svg.rect(100, 100).move(30, 50).fill('#60f');
-  var rect2 = nested.rect(50, 50).fill('green');
-  var count = 0;
-  console.dir(rect);
+  (function() {
+      // init root context
+      var svg = SVG('svg').size(500, 500);
+      // create a round cornet reactangle
+      var rect = svg.rect(100, 100)
+                    .move(30, 50)
+                    .fill('#60f')
+                    .radius(20)
+                    .click(() => {rect.animate(1000).size(200, 10)});
+      // create a circle                
+      var circle = svg.circle(60)
+                      .fill('lightgreen')
+                      .move(150, 70)
+                      .click(() => {circle.animate(1000).radius(200)});
+      // create a line
+      var line = svg.line(150, 0, 300, 150)
+                    .stroke({width: 3, color: '#f60'})
+                    .click(() => {line.animate(1000).plot(200,0,300,150)});
+      // create a polyline
+      var polyLine = svg.polyline('50,0 60,40 100,50 60,60 50,100 40,60 0,50 40,40')
+                        .fill('none')
+                        .stroke({width: 3, color: 'lightblue'})
+                        .move(200, 0)
+                        .click(() => {polyLine.animate(1000).plot('50,30 60,10 50,50 60,60 50,20 0,60 0,30 40,40')});
+      // 创建字符串                        
+      var str = svg.text("hello \n world")
+                   .move(300, 0);
+      // 创建路径字符 + 动画                   
+      var pathText = svg.text(function(add) {
+        add.tspan( "hello world" )
+      })
+
+      pathText
+        .path('M10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')
+        .animate(1000, '<>')
+        .plot('M10 80 C 40 150, 65 150, 95 80 S 150 10, 180 100')
+        .loop(true, true)
+      // 创建渐变
+
+      var g = svg.gradient('linear', (stop) => {
+        stop.at(0, '#333');
+        stop.at(0.2, '#999');
+        stop.at(0.7, '#333');
+        stop.at(1, '#999');
+      });
+      var gradientRect = svg.rect(100, 20)
+                            .move(350, 0)
+                            .fill(g)
+
+      /*
+      The use element simply emulates another existing element.
+      Any changes on the master element will be reflected on all the use instances. 
+      */                  
+      var use = svg.use(gradientRect);
+      use.move(0, 100)
+      gradientRect.animate(1000, '<>').size(100, 50).loop(true, true)
+
+
+      // marker
+      var axisX = svg.polyline('50,0 60,40 100,50 60,60 50,100 40,60 0,50 40,40')
+                     .stroke({width: 2, color: '#888'})
+                     .move(20, 180)
+                     .fill('none')
+                     .marker('start', 10, 10, add => {
+                       add.rect(1, 5).dx(5)
+                     })
+                     .marker('mid', 10, 10, add => {
+                       add.circle(10, 10).fill('red')
+                     })
+                     .marker('end', 10, 10, add => {
+                       add.circle(10, 10).fill('green')
+                     })
+    }
+  )();
 </script>
 </body>
 </html>
