@@ -21,17 +21,18 @@
       this.ctx = SVG(elemId).size(width, height).stroke({width: 1, color: '#999'});
       this.currentNode = null;
       var self = this;
-      // Object.defineProperty(this, 'nodes', {
-      //   get: function() {
-      //     return self.nodes;
-      //   },
-      //   set: function(_nodes) {
-      //     self.nodes = _nodes;
-      //     self.render()
-      //     return;
-      //   }
-      // });
-      this.nodes = [];
+      var _nodes = []
+      Object.defineProperty(this, 'nodes', {
+        get: function() {
+          return _nodes;
+        },
+        set: function(nodes) {
+          _nodes = nodes;
+          self.render()
+          return;
+        },
+      });
+      this.nodes = []
       this.availableArea = {x: 0, y: 0, w: width, h: height}
       this.drawingLine = false;
     }
@@ -69,9 +70,6 @@
           document.removeEventListener('mousemove', handleMove, false)
         })
       });
-      // node.mouseup(() => {
-      //   document.removeEventListener('mousemove', handleMove, false);
-      // });
     }
     Flowchart.prototype.drawRect = function(node) {
       var _currNode = this.ctx.rect(node.width, node.height)
@@ -100,7 +98,7 @@
     Flowchart.prototype.addNode = function(Node) {
       // node instance of Node
       Node.dragable = true;
-      this.nodes.push(Node);
+      this.nodes = [...this.nodes, Node];
     }
     Flowchart.prototype.clear = function() {
       console.log(this.ctx)
@@ -152,7 +150,6 @@
           ));
         break;
       }
-      chart.render();
     }
     addRect.onclick = function() {
       addNodeBytype('rect');
