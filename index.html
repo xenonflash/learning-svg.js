@@ -52,11 +52,19 @@
       pathText
         .path('M10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')
         .animate(1000, '<>')
-        .plot('M10 80 C 40 150, 65 150, 95 80 S 150 10, 180 80')
+        .plot('M10 80 C 40 150, 65 150, 95 80 S 150 10, 180 100')
         .loop(true, true)
       // 创建渐变
 
-      var g = svg.gradient('linear');
+      var g = svg.gradient('linear', (stop) => {
+        stop.at(0, '#333');
+        stop.at(0.2, '#999');
+        stop.at(0.7, '#333');
+        stop.at(1, '#999');
+      });
+      var gradientRect = svg.rect(100, 20)
+                            .move(350, 0)
+                            .fill(g)
     }
   )();
 </script>
