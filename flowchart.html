@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <h2>operation</h2>
+  <button type="button" id = 'btnAddNode'>add node</button>
+  <button type="button" id = 'btnClear'>clear</button>
+  <hr>
+  <div id="mychart"></div>
+  <script src= "./node_modules/svg.js/dist/svg.min.js"></script>
+
+  <script>
+    function Flowchart(elemId, width, height) {
+      this.elemId =elemId
+      this.ctx = SVG(elemId).size(width, height).stroke({width: 1, color: '#999'});
+      this.currentNode = null;
+      var self = this;
+      // Object.defineProperty(this, 'nodes', {
+      //   get: function() {
+      //     return self.nodes;
+      //   },
+      //   set: function(_nodes) {
+      //     self.nodes = _nodes;
+      //     self.render()
+      //     return;
+      //   }
+      // });
+      this.nodes = []
+      this.availableArea = {x: 0, y: 0, w: width, h: height}
+    }
+    Flowchart.prototype.render = function() {
+      this.nodes.forEach((node, index) => {
+        switch (node.type) {
+          case 'rect':
+            this.drawRect(node)
+            break;
+          case 'judge':
+            this.drawJudge(node);
+            break;
+        }
+      })
+    }
+    Flowchart.prototype.drawRect = function(node) {
+      this.ctx.rect(node.width, node.height)
+      .stroke({width: 2, color: '#666'})
+      .fill('none')
+      .move(node.x, node.y);
+    }
+    Flowchart.prototype.drawJudge = function(node) {
+      this.ctx.polyline(`
+        ${node.x - node.width / 2},
+        ${node.y},
+        ${node.x},
+        ${node.y - node.height / 2},
+        ${node.x + node.width / 2},
+        ${node.y},
+        ${node.x},
+        ${node.y + node.height / 2},
+        ${node.x - node.width / 2},
+        ${node.y}
+      `).fill('none')
+      .stroke({width: 2, color: 'green'})
+      .move(node.x, node.y);
+    }
+    Flowchart.prototype.addNode = function(Node) {
+      // node instance of Node
+      Node.dragable = false;
+      this.nodes.push(Node);
+    }
+    Flowchart.prototype.clear = function() {
+      console.log(this.ctx)
+      this.nodes = [];
+    }
+    function Node(x, y, name, from, to, allow, type) {
+      this.from = from,
+      this.to = to,
+      this.allow = allow
+      this.name = name;
+      this.x = x;
+      this.y = y;
+      this.type = type
+    }
+    function NormalBlock(x, y, width, height, name, from, to, allow) {
+      Node.call(this, x, y, name, from, to, allow, 'rect');
+      this.width = width;
+      this.height = height;
+    }
+    function JudgeBlock(x, y, width, height, name, from, to, allow) {
+      Node.call(this, x, y, name, from, to, allow, 'judge');
+      this.width = width;
+      this.height = height;
+    }
+    Object.setPrototypeOf(NormalBlock.prototype, Node.prototype);
+    Object.setPrototypeOf(JudgeBlock.prototype, Node.prototype);
+  </script>
+  <script>
+    Math.randomBetween = function(min, max) {
+      return Math.random() * (max - min) + min
+    }
+  </script>
+  <script>
+    var addNode = document.getElementById('btnAddNode');
+    var chartClear = document.getElementById('btnClear');
+    // 初始化流程图
+    var chart = new Flowchart('mychart', 700, 700);
+    addNode.onclick = function() {
+      chart.addNode(new NormalBlock(
+        Math.randomBetween(20, 500), Math.randomBetween(100, 300), 100, 100, 'rect', [], [], []
+      ));
+      chart.addNode(new JudgeBlock(
+        Math.randomBetween(20, 500), Math.randomBetween(100, 300), 50, 50, 'judge', [], [], []
+      ));
+      chart.render();
+    }
+    chartClear.onclick = function() {
+      chart.clear()
+    }
+  </script>
+</body>
+</html>
