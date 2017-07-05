@@ -65,6 +65,16 @@
       var gradientRect = svg.rect(100, 20)
                             .move(350, 0)
                             .fill(g)
+
+      /*
+      The use element simply emulates another existing element.
+      Any changes on the master element will be reflected on all the use instances. 
+      */                  
+      var use = svg.use(gradientRect);
+      use.move(0, 100)
+      gradientRect.animate(1000, '<>').size(100, 50).loop(true, true)
+
+      
     }
   )();
 </script>
