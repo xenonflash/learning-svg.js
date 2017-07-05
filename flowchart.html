@@ -7,8 +7,9 @@
   <title>Document</title>
 </head>
 <body>
-  <h2>operation</h2>
-  <button type="button" id = 'btnAddNode'>add node</button>
+  <h2>operation </h2>
+  <button type="button" id = 'btnAddRect'>添加矩形</button>
+  <button type="button" id = 'btnAddJudge'>添加判断</button>
   <button type="button" id = 'btnClear'>clear</button>
   <hr>
   <div id="mychart"></div>
@@ -30,29 +31,57 @@
       //     return;
       //   }
       // });
-      this.nodes = []
+      this.nodes = [];
       this.availableArea = {x: 0, y: 0, w: width, h: height}
+      this.drawingLine = false;
     }
     Flowchart.prototype.render = function() {
       this.nodes.forEach((node, index) => {
         switch (node.type) {
           case 'rect':
-            this.drawRect(node)
+            this.currentNode = this.drawRect(node);
             break;
           case 'judge':
-            this.drawJudge(node);
+            this.currentNode = this.drawJudge(node);
             break;
+          default:
+            return;
+        }
+        this.currentNode.fill('#ddd')
+        if (node.dragable) {
+          this.activeDragable(this.currentNode)
         }
       })
     }
+    Flowchart.prototype.activeDragable = function (node) {
+      node.mousedown((e) => {
+        var downX = e.clientX;
+        var downY = e.clientY;
+        var oX = node.x();
+        var oY = node.y();
+        function handleMove(e) {
+          var deltaX = e.clientX - downX;
+          var deltaY = e.clientY - downY;
+          node.move(oX + deltaX, oY + deltaY)
+        }
+        document.addEventListener('mousemove', handleMove, false);
+        document.addEventListener('mouseup', () => {
+          document.removeEventListener('mousemove', handleMove, false)
+        })
+      });
+      // node.mouseup(() => {
+      //   document.removeEventListener('mousemove', handleMove, false);
+      // });
+    }
     Flowchart.prototype.drawRect = function(node) {
-      this.ctx.rect(node.width, node.height)
+      var _currNode = this.ctx.rect(node.width, node.height)
       .stroke({width: 2, color: '#666'})
       .fill('none')
       .move(node.x, node.y);
+      return _currNode;
     }
     Flowchart.prototype.drawJudge = function(node) {
-      this.ctx.polyline(`
+      var _currNode = this.ctx.polyline(`
         ${node.x - node.width / 2},
         ${node.y},
         ${node.x},
@@ -66,10 +95,11 @@
       `).fill('none')
       .stroke({width: 2, color: 'green'})
       .move(node.x, node.y);
+      return _currNode;
     }
     Flowchart.prototype.addNode = function(Node) {
       // node instance of Node
-      Node.dragable = false;
+      Node.dragable = true;
       this.nodes.push(Node);
     }
     Flowchart.prototype.clear = function() {
@@ -104,18 +134,31 @@
     }
   </script>
   <script>
-    var addNode = document.getElementById('btnAddNode');
+    var addRect = document.getElementById('btnAddRect');
+    var addJudge = document.getElementById('btnAddJudge');
     var chartClear = document.getElementById('btnClear');
     // 初始化流程图
     var chart = new Flowchart('mychart', 700, 700);
-    addNode.onclick = function() {
-      chart.addNode(new NormalBlock(
-        Math.randomBetween(20, 500), Math.randomBetween(100, 300), 100, 100, 'rect', [], [], []
-      ));
-      chart.addNode(new JudgeBlock(
-        Math.randomBetween(20, 500), Math.randomBetween(100, 300), 50, 50, 'judge', [], [], []
-      ));
+    function addNodeBytype(type){
+      switch (type) {
+        case 'rect':
+          chart.addNode(new NormalBlock(
+            Math.randomBetween(20, 500), Math.randomBetween(100, 300), 100, 100, 'rect', [], [], []
+          ));
+        break;
+        case 'judge':
+          chart.addNode(new JudgeBlock(
+            Math.randomBetween(20, 500), Math.randomBetween(100, 300), 100, 50, 'judge', [], [], []
+          ));
+        break;
+      }
       chart.render();
+    }
+    addRect.onclick = function() {
+      addNodeBytype('rect');
+    }
+    addJudge.onclick = function() {
+      addNodeBytype('judge');
     }
     chartClear.onclick = function() {
       chart.clear()
