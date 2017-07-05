@@ -35,6 +35,28 @@
       var line = svg.line(150, 0, 300, 150)
                     .stroke({width: 3, color: '#f60'})
                     .click(() => {line.animate(1000).plot(200,0,300,150)});
+      // create a polyline
+      var polyLine = svg.polyline('50,0 60,40 100,50 60,60 50,100 40,60 0,50 40,40')
+                        .fill('none')
+                        .stroke({width: 3, color: 'lightblue'})
+                        .move(200, 0)
+                        .click(() => {polyLine.animate(1000).plot('50,30 60,10 50,50 60,60 50,20 0,60 0,30 40,40')});
+      // 创建字符串                        
+      var str = svg.text("hello \n world")
+                   .move(300, 0);
+      // 创建路径字符 + 动画                   
+      var pathText = svg.text(function(add) {
+        add.tspan( "hello world" )
+      })
+
+      pathText
+        .path('M10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')
+        .animate(1000, '<>')
+        .plot('M10 80 C 40 150, 65 150, 95 80 S 150 10, 180 80')
+        .loop(true, true)
+      // 创建渐变
+
+      var g = svg.gradient('linear');
     }
   )();
 </script>
