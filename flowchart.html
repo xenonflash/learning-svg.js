@@ -21,14 +21,14 @@
       this.ctx = SVG(elemId).size(width, height).stroke({width: 1, color: '#999'});
       this.currentNode = null;
       var self = this;
-      var _nodes = []
+      var _nodes = [];
       Object.defineProperty(this, 'nodes', {
         get: function() {
           return _nodes;
         },
         set: function(nodes) {
           _nodes = nodes;
-          self.render()
+          self.render();
           return;
         },
       });
@@ -48,13 +48,39 @@
           default:
             return;
         }
-        this.currentNode.fill('#ddd')
+        this.currentNode.fill('#ddd');
+        // 启用拖拽
         if (node.dragable) {
           this.activeDragable(this.currentNode)
         }
+        // 连线
+        // this.connect();
+        
       })
     }
+    Flowchart.prototype.connect = function () {
+      if (this.nodes.length < 2) {
+        return;
+      }
+      /*模拟写死*/
+      var startNode = this.nodes[0];
+      var endNode = this.nodes[1];
+      var start = [
+        startNode.x + startNode.width / 2,
+        startNode.y
+      ];
+      var end = [
+        endNode.x + endNode.width / 2,
+        endNode.y
+      ]
+      this.ctx.polyline([start, end])
+              .stroke({width: 1, color: '#333'})
+              .marker('end', 5, 5, add => {
+                add.circle(5, 5).fill('red');
+              })
+    }
     Flowchart.prototype.activeDragable = function (node) {
+      let self = this
       node.mousedown((e) => {
         var downX = e.clientX;
         var downY = e.clientY;
@@ -63,13 +89,50 @@
         function handleMove(e) {
           var deltaX = e.clientX - downX;
           var deltaY = e.clientY - downY;
-          node.move(oX + deltaX, oY + deltaY)
+          // 检测碰撞
+          if(!self.isConflict(self.currentNode, self.nodes.filter(node => node.name !== self.currentNode.name))) {
+            node.move(oX + deltaX, oY + deltaY)
+          }
         }
         document.addEventListener('mousemove', handleMove, false);
         document.addEventListener('mouseup', () => {
           document.removeEventListener('mousemove', handleMove, false)
         })
       });
+    }
+    Flowchart.prototype.isConflict = function(currentNode, restNodes) {
+      // return false;s
+      function getCorner(x, y, w, h) {
+        return {
+          lt: {
+            x: x - w / 2,
+            y: y - h / 2
+          },
+          rt: {
+            x: x + w / 2,
+            y: y - h / 2
+          },
+          lb: {
+            x: x - w / 2,
+            y: y + h / 2 
+          },
+          rb: {
+            x: x + w / 2,
+            y: y + h / 2 
+          }
+        }
+      }
+      let currCorner = getCorner(currentNode.x, currentNode.y, currentNode.width, currentNode.height);
+      return restNodes.some(node => { 
+        // 判断是否至少有一个碰撞
+        let nodeCorner = getCorner(node.x, node.y, node.width, node.height);
+        return (
+              currCorner.rb.x >= nodeCorner.lt.x && currCorner.rb.y >= nodeCorner.lt.y //左上角
+          ||  currCorner.lb.x <= nodeCorner.rt.x && currCorner.lb.y >= nodeCorner.rt.y //右上角
+          ||  currCorner.rt.x >= nodeCorner.lb.x && currCorner.rt.y <= nodeCorner.lb.y //左下角
+          ||  currCorner.lt.x <= nodeCorner.rb.x && currCorner.lt.y <= nodeCorner.rb.y //右下角
+        );
+      })
     }
     Flowchart.prototype.drawRect = function(node) {
       var _currNode = this.ctx.rect(node.width, node.height)
@@ -101,7 +164,6 @@
       this.nodes = [...this.nodes, Node];
     }
     Flowchart.prototype.clear = function() {
-      console.log(this.ctx)
       this.nodes = [];
     }
     function Node(x, y, name, from, to, allow, type) {
@@ -137,17 +199,20 @@
     var chartClear = document.getElementById('btnClear');
     // 初始化流程图
     var chart = new Flowchart('mychart', 700, 700);
+    var count = 1;
     function addNodeBytype(type){
       switch (type) {
         case 'rect':
           chart.addNode(new NormalBlock(
-            Math.randomBetween(20, 500), Math.randomBetween(100, 300), 100, 100, 'rect', [], [], []
+            Math.randomBetween(20, 500), Math.randomBetween(100, 300), 100, 100, 'rect' + count, [], [], []
           ));
+          count++;
         break;
         case 'judge':
           chart.addNode(new JudgeBlock(
-            Math.randomBetween(20, 500), Math.randomBetween(100, 300), 100, 50, 'judge', [], [], []
+            Math.randomBetween(20, 500), Math.randomBetween(100, 300), 100, 50, 'judge' + count, [], [], []
           ));
+          count++;
         break;
       }
     }
