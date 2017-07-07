@@ -22,22 +22,36 @@
       this.currentNode = null;
       var self = this;
       var _nodes = [];
-      Object.defineProperty(this, 'nodes', {
-        get: function() {
-          return _nodes;
+      var _nodesElements = [];
+      Object.defineProperties(this, {
+        'nodes': {
+          get: function() {
+            return _nodes;
+          },
+          set: function(nodes) {
+            _nodes = nodes;
+            self.render();
+            return;
+          }
         },
-        set: function(nodes) {
-          _nodes = nodes;
-          self.render();
-          return;
-        },
+        'nodeElements': {
+          get: function() {
+            return _nodesElements;
+          },
+          set: function(nodes) {
+            _nodes = nodes;
+            self.render();
+            return;
+          }
+        }
       });
-      this.nodes = []
+      this.nodes = [];
+      this.nodeElements = [];
       this.availableArea = {x: 0, y: 0, w: width, h: height}
       this.drawingLine = false;
     }
     Flowchart.prototype.render = function() {
-      this.nodes.forEach((node, index) => {
+      this.nodes.length > 0 && this.nodes.forEach((node, index) => {
         switch (node.type) {
           case 'rect':
             this.currentNode = this.drawRect(node);
@@ -48,6 +62,7 @@
           default:
             return;
         }
+        this.nodeElements.push(this.currentNode);
         this.currentNode.fill('#ddd');
         // 启用拖拽
         if (node.dragable) {
@@ -55,7 +70,6 @@
         }
         // 连线
         // this.connect();
-        
       })
     }
     Flowchart.prototype.connect = function () {
@@ -163,8 +177,13 @@
       Node.dragable = true;
       this.nodes = [...this.nodes, Node];
     }
-    Flowchart.prototype.clear = function() {
-      this.nodes = [];
+    Flowchart.prototype.clear = function(name) {
+      if (name) {
+        // todo 删除指定节点
+      } else {
+        this.nodes = [];
+        this.nodeElements.forEach(node => node.remove())
+      }
     }
     function Node(x, y, name, from, to, allow, type) {
       this.from = from,
